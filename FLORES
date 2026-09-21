@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Flores Amarillas para Anabel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Playfair+Display:ital,wght@0,500;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #05080c;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #f6e6b4;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 1;
+      touch-action: none;
+    }
+
+    /* Header elegante y sutil en la parte superior */
+    .top-bar {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      pointer-events: none;
+    }
+
+    .title-group {
+      pointer-events: auto;
+      text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+    }
+
+    .title-tag {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: #ffd54f;
+      opacity: 0.85;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .title-main {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.2rem, 3.2vw, 2rem);
+      font-weight: 500;
+      color: #fff9e6;
+      text-shadow: 0 0 20px rgba(255, 213, 79, 0.4);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .btn-glass {
+      background: rgba(18, 24, 33, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 215, 64, 0.25);
+      color: #fff0be;
+      padding: 8px 15px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    }
+
+    .btn-glass:hover {
+      background: rgba(255, 215, 64, 0.2);
+      border-color: rgba(255, 215, 64, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 213, 79, 0.25);
+    }
+
+    /* Panel Compacto Minimalista en la esquina inferior izquierda */
+    .mini-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      width: 250px;
+      background: rgba(8, 13, 18, 0.68);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 215, 64, 0.2);
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .mini-panel.collapsed {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(18, 24, 33, 0.85);
+      border: 1px solid rgba(255, 215, 64, 0.45);
+    }
+
+    .mini-panel.collapsed .panel-content {
+      display: none;
+    }
+
+    .mini-panel.collapsed .collapsed-icon {
+      display: block;
+      font-size: 1.2rem;
+    }
+
+    .collapsed-icon {
+      display: none;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .flower-counter {
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: #f7d770;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .toggle-btn:hover {
+      color: #fff;
+    }
+
+    .quote-snippet {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      color: #ebdcb0;
+      margin-bottom: 10px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-gold-mini {
+      background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%);
+      color: #1a1200;
+      font-weight: 600;
+      border: none;
+      padding: 7px 12px;
+      font-size: 0.74rem;
+      border-radius: 12px;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(255, 179, 0, 0.35);
+      transition: transform 0.2s;
+    }
+
+    .btn-gold-mini:hover {
+      transform: scale(1.03);
+    }
+
+    .wind-widget {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      color: #ccc;
+    }
+
+    .wind-widget input[type="range"] {
+      width: 55px;
+      accent-color: #ffd54f;
+      height: 4px;
+    }
+
+    /* Modal Carta de Amor */
+    .letter-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(3, 6, 10, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .letter-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .letter-card {
+      max-width: 440px;
+      width: 100%;
+      background: radial-gradient(circle at 10% 10%, rgba(30, 24, 15, 0.95), rgba(12, 10, 8, 0.98));
+      border: 1px solid rgba(255, 215, 64, 0.4);
+      border-radius: 22px;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 35px rgba(255, 215, 64, 0.15);
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .letter-modal.active .letter-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .close-card {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .letter-card h3 {
+      font-family: 'Cinzel', serif;
+      color: #ffd740;
+      font-size: 1.4rem;
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+    }
+
+    .letter-card p {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #f7edd4;
+      font-style: italic;
+      margin-bottom: 22px;
+    }
+
+    .card-signature {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      color: #ffca28;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .mini-panel {
+        left: 12px;
+        bottom: 12px;
+        width: 220px;
+        padding: 10px 12px;
+      }
+      .top-bar {
+        padding: 0 16px;
+        top: 14px;
+      }
+      .title-tag {
+        font-size: 0.65rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="gardenCanvas"></canvas>
+
+  <!-- Barra superior elegante -->
+  <header class="top-bar">
+    <div class="title-group">
+      <div class="title-tag">🌻 Eternamente Tuyas</div>
+      <h1 class="title-main">Para Anabel, el amor de mi vida</h1>
+    </div>
+    <div class="top-actions">
+      <button class="btn-glass" id="btnLetter" aria-label="Abrir Carta">
+        <span>💌</span>
+        <span>Para Anabel</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Panel flotante pequeño en la esquina inferior izquierda -->
+  <aside class="mini-panel" id="miniPanel">
+    <div class="collapsed-icon" title="Expandir controles">🌻</div>
+    
+    <div class="panel-content">
+      <div class="panel-header">
+        <span class="flower-counter" id="flowerCount">🌻 0 flores para ti</span>
+        <button class="toggle-btn" id="toggleCollapse" title="Minimizar panel">—</button>
+      </div>
+
+      <p class="quote-snippet" id="quoteSnippet">
+        «Cada flor que brota lleva tatuado tu nombre: Anabel.»
+      </p>
+
+      <div class="action-row">
+        <button class="btn-gold-mini" id="btnSpawn">💛 Sembrar</button>
+        <div class="wind-widget" title="Fuerza del viento">
+          <span>🍃</span>
+          <input type="range" id="windSlider" min="5" max="45" value="18">
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Modal Carta de Amor -->
+  <div class="letter-modal" id="letterModal">
+    <div class="letter-card">
+      <button class="close-card" id="btnCloseLetter">&times;</button>
+      <div style="font-size: 2rem; margin-bottom: 8px;">💛</div>
+      <h3>Para Mi Amada Anabel</h3>
+      <p>
+        Dicen que regalar flores amarillas es prometer luz, felicidad y un amor infinito. 
+        Este jardín fue programado exclusivamente para ti: flores que nunca se marchitan, 
+        que danzan con el viento y que se multiplican con solo tocar la pantalla. 
+        Gracias por iluminar mis días como el más radiante de los soles.
+      </p>
+      <div class="card-signature">— Por siempre tuyo</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gardenCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    // Audio procedural con Web Audio API (brisa y campanitas al sembrar)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSoftChime() {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const freqs = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+        const f = freqs[Math.floor(Math.random() * freqs.length)];
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.8);
+      } catch (e) {}
+    }
+
+    // Parámetros de simulación
+    let flowers = [];
+    let petals = [];
+    let hearts = [];
+    let fireflies = [];
+    let grassBlades = [];
+
+    let windTarget = 18;
+    let currentWind = 18;
+    let globalTime = 0;
+
+    const flowerPalettes = [
+      { petal: '#ffca28', center: '#3e2723', rim: '#ffe082', inner: '#21130d' }, // Girasol
+      { petal: '#ffd54f', center: '#e65100', rim: '#fff9c4', inner: '#bf360c' }, // Narciso
+      { petal: '#ffeb3b', center: '#5d4037', rim: '#fffde7', inner: '#3e2723' }, // Silvestre
+      { petal: '#ffc107', center: '#bf360c', rim: '#ffe082', inner: '#ff6f00' }, // Cempasúchil
+      { petal: '#ffee58', center: '#4e342e', rim: '#fff', inner: '#271b16' }     // Botón de oro
+    ];
+
+    // Clase Flor con tallo orgánico (física Bézier)
+    class YellowFlower {
+      constructor(x, y, scale = 1, isForeground = false) {
+        this.baseX = x;
+        this.baseY = y || height + 20;
+        this.height = (height * (0.35 + Math.random() * 0.35)) * scale;
+        this.scale = scale;
+        this.isForeground = isForeground;
+
+        this.palette = flowerPalettes[Math.floor(Math.random() * flowerPalettes.length)];
+        this.petalCount = 10 + Math.floor(Math.random() * 8);
+        this.headSize = (22 + Math.random() * 16) * scale;
+        this.stemWidth = (4 + Math.random() * 3) * scale;
+
+        this.anglePhase = Math.random() * Math.PI * 2;
+        this.swaySpeed = 0.8 + Math.random() * 0.7;
+        this.stiffness = 0.85 + Math.random() * 0.3;
+
+        // Crecimiento suave al nacer
+        this.growth = 0.05;
+        this.targetGrowth = 1;
+
+        // Hoja lateral
+        this.leafSide = Math.random() > 0.5 ? 1 : -1;
+        this.leafHeightRatio = 0.3 + Math.random() * 0.3;
+      }
+
+      update(wind) {
+        if (this.growth < this.targetGrowth) {
+          this.growth += (this.targetGrowth - this.growth) * 0.05;
+        }
+
+        const naturalOsc = Math.sin(globalTime * this.swaySpeed + this.anglePhase);
+        const windPush = (wind / 30) * 28;
+        this.currentBend = (naturalOsc * 15 + windPush) * this.growth;
+      }
+
+      draw() {
+        const currentH = this.height * this.growth;
+        const tipX = this.baseX + this.currentBend;
+        const tipY = this.baseY - currentH;
+
+        // Control point curva tallo
+        const ctrlX = this.baseX + this.currentBend * 0.35;
+        const ctrlY = this.baseY - currentH * 0.55;
+
+        // Dibujar tallo
+        ctx.beginPath();
+        ctx.moveTo(this.baseX, this.baseY);
+        ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+        ctx.strokeStyle = '#2d5a27';
+        ctx.lineWidth = this.stemWidth;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Hoja
+        const leafY = this.baseY - currentH * this.leafHeightRatio;
+        const leafX = this.baseX + this.currentBend * this.leafHeightRatio;
+        ctx.save();
+        ctx.translate(leafX, leafY);
+        ctx.rotate((this.leafSide * 0.6) + (this.currentBend * 0.01));
+        ctx.beginPath();
+        ctx.ellipse(this.leafSide * 16 * this.scale, 0, 18 * this.scale, 6 * this.scale, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#3a7233';
+        ctx.fill();
+        ctx.restore();
+
+        // Cabeza de la flor
+        ctx.save();
+        ctx.translate(tipX, tipY);
+        const tiltAngle = (this.currentBend * 0.015);
+        ctx.rotate(tiltAngle);
+
+        const currentHeadSize = this.headSize * this.growth;
+
+        // Halo dorado suave
+        const glow = ctx.createRadialGradient(0, 0, currentHeadSize * 0.2, 0, 0, currentHeadSize * 2.2);
+        glow.addColorStop(0, 'rgba(255, 213, 79, 0.22)');
+        glow.addColorStop(1, 'rgba(255, 213, 79, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, 0, currentHeadSize * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pétalos
+        for (let i = 0; i < this.petalCount; i++) {
+          const angle = (Math.PI * 2 / this.petalCount) * i;
+          ctx.save();
+          ctx.rotate(angle);
+
+          ctx.beginPath();
+          ctx.ellipse(
+            currentHeadSize * 0.85,
+            0,
+            currentHeadSize * 0.9,
+            currentHeadSize * 0.32,
+            0,
+            0,
+            Math.PI * 2
+          );
+
+          const grad = ctx.createLinearGradient(0, 0, currentHeadSize * 1.7, 0);
+          grad.addColorStop(0, this.palette.rim);
+          grad.addColorStop(0.4, this.palette.petal);
+          grad.addColorStop(1, '#ffa000');
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          ctx.strokeStyle = 'rgba(255, 248, 225, 0.4)';
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+
+          ctx.restore();
+        }
+
+        // Centro floral
+        ctx.beginPath();
+        ctx.arc(0, 0, currentHeadSize * 0.48, 0, Math.PI * 2);
+        const centerGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, currentHeadSize * 0.48);
+        centerGrad.addColorStop(0, this.palette.center);
+        centerGrad.addColorStop(0.8, this.palette.inner);
+        centerGrad.addColorStop(1, '#110b08');
+        ctx.fillStyle = centerGrad;
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // Briznas de hierba para fondo tupido
+    class Grass {
+      constructor(x, y, h) {
+        this.x = x;
+        this.y = y;
+        this.h = h;
+        this.offset = Math.random() * 10;
+        this.color = Math.random() > 0.5 ? '#1b3b19' : '#142d13';
+      }
+      draw(wind) {
+        const bend = Math.sin(globalTime * 2 + this.offset) * 8 + (wind * 0.5);
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.quadraticCurveTo(this.x + bend * 0.5, this.y - this.h * 0.5, this.x + bend, this.y - this.h);
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
+    }
+
+    // Partícula de corazón dorado al hacer clic
+    class FloatingHeart {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = 10 + Math.random() * 8;
+        this.vy = -(1.2 + Math.random() * 1.5);
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.alpha = 1;
+        this.decay = 0.01 + Math.random() * 0.015;
+      }
+      update() {
+        this.y += this.vy;
+        this.x += this.vx;
+        this.alpha -= this.decay;
+      }
+      draw() {
+        if (this.alpha <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.translate(this.x, this.y);
+        ctx.fillStyle = '#ffd700';
+        ctx.beginPath();
+        const s = this.size * 0.5;
+        ctx.moveTo(0, s * 0.3);
+        ctx.bezierCurveTo(-s, -s * 0.7, -s * 1.4, s * 0.3, 0, s * 1.4);
+        ctx.bezierCurveTo(s * 1.4, s * 0.3, s, -s * 0.7, 0, s * 0.3);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Pétalos flotantes al viento
+    class FloatingPetal {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = -20;
+        this.size = 7 + Math.random() * 8;
+        this.vy = 1.2 + Math.random() * 1.8;
+        this.rot = Math.random() * Math.PI * 2;
+        this.vRot = (Math.random() - 0.5) * 0.05;
+        this.color = flowerPalettes[Math.floor(Math.random() * flowerPalettes.length)].petal;
+      }
+      update(wind) {
+        this.x += (wind * 0.12) + Math.sin(this.y * 0.02) * 1.2;
+        this.y += this.vy;
+        this.rot += this.vRot;
+        if (this.y > height + 20 || this.x > width + 50) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.size, this.size * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Luciérnagas doradas
+    class Firefly {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height * 0.8;
+        this.baseX = this.x;
+        this.baseY = this.y;
+        this.radius = 1.2 + Math.random() * 1.6;
+        this.phase = Math.random() * Math.PI * 2;
+        this.speed = 0.5 + Math.random() * 0.8;
+      }
+      update() {
+        this.x = this.baseX + Math.sin(globalTime * this.speed + this.phase) * 35;
+        this.y = this.baseY + Math.cos(globalTime * this.speed * 0.7 + this.phase) * 25;
+      }
+      draw() {
+        const glow = (Math.sin(globalTime * 3 + this.phase) + 1) / 2;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius + glow * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 235, 59, ${0.3 + glow * 0.6})`;
+        ctx.fill();
+      }
+    }
+
+    function initScene() {
+      flowers = [];
+      petals = [];
+      fireflies = [];
+      grassBlades = [];
+
+      // Hierba fondo
+      const grassCount = Math.floor(width / 7);
+      for (let i = 0; i < grassCount; i++) {
+        grassBlades.push(new Grass(i * 7 + Math.random() * 4, height, 90 + Math.random() * 90));
+      }
+
+      // Flores densas
+      const count = Math.max(35, Math.floor(width / 24));
+      for (let i = 0; i < count; i++) {
+        const x = (width / count) * i + (Math.random() * 25 - 12);
+        const scale = 0.7 + Math.random() * 0.5;
+        const isFg = Math.random() > 0.65;
+        flowers.push(new YellowFlower(x, height + 15, scale, isFg));
+      }
+
+      // Ordenar por tamaño para profundidad
+      flowers.sort((a, b) => a.scale - b.scale);
+
+      // Pétalos y luciérnagas
+      for (let i = 0; i < 28; i++) petals.push(new FloatingPetal());
+      for (let i = 0; i < 35; i++) fireflies.push(new Firefly());
+
+      updateCounter();
+    }
+
+    function addFlowerCluster(touchX, touchY) {
+      initAudio();
+      playSoftChime();
+
+      // Brotar flor interactiva
+      const newFl = new YellowFlower(touchX, height + 15, 0.85 + Math.random() * 0.45, true);
+      newFl.growth = 0.01;
+      flowers.push(newFl);
+      flowers.sort((a, b) => a.scale - b.scale);
+
+      // Crear corazones dorados que ascienden
+      for (let i = 0; i < 4; i++) {
+        hearts.push(new FloatingHeart(touchX + (Math.random() * 30 - 15), touchY || (height * 0.6)));
+      }
+
+      updateCounter();
+    }
+
+    function updateCounter() {
+      const el = document.getElementById('flowerCount');
+      if (el) el.textContent = `🌻 ${flowers.length} flores para ti`;
+    }
+
+    // Render loop principal
+    function animate() {
+      globalTime += 0.02;
+
+      // Suavizar viento
+      currentWind += (windTarget - currentWind) * 0.04;
+
+      // Fondo degradado nocturno romántico
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+      bgGrad.addColorStop(0, '#060a12');
+      bgGrad.addColorStop(0.65, '#0b1622');
+      bgGrad.addColorStop(1, '#08120b');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Luna suave
+      const moonGrad = ctx.createRadialGradient(width * 0.82, height * 0.18, 5, width * 0.82, height * 0.18, 90);
+      moonGrad.addColorStop(0, 'rgba(255, 248, 225, 0.45)');
+      moonGrad.addColorStop(0.3, 'rgba(255, 236, 179, 0.12)');
+      moonGrad.addColorStop(1, 'rgba(255, 236, 179, 0)');
+      ctx.fillStyle = moonGrad;
+      ctx.beginPath();
+      ctx.arc(width * 0.82, height * 0.18, 90, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Luciérnagas
+      fireflies.forEach(f => {
+        f.update();
+        f.draw();
+      });
+
+      // Césped
+      grassBlades.forEach(g => g.draw(currentWind));
+
+      // Flores
+      flowers.forEach(f => {
+        f.update(currentWind);
+        f.draw();
+      });
+
+      // Corazones
+      for (let i = hearts.length - 1; i >= 0; i--) {
+        hearts[i].update();
+        hearts[i].draw();
+        if (hearts[i].alpha <= 0) hearts.splice(i, 1);
+      }
+
+      // Pétalos cayendo
+      petals.forEach(p => {
+        p.update(currentWind);
+        p.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    // Eventos e interacción
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initScene();
+    });
+
+    window.addEventListener('pointerdown', (e) => {
+      // Ignorar si hace clic sobre los botones de UI
+      if (e.target.closest('.mini-panel') || e.target.closest('.top-bar') || e.target.closest('.letter-modal')) {
+        return;
+      }
+      addFlowerCluster(e.clientX, e.clientY);
+    });
+
+    // Control de Viento
+    const windSlider = document.getElementById('windSlider');
+    windSlider.addEventListener('input', (e) => {
+      windTarget = parseFloat(e.target.value);
+    });
+
+    // Botón Sembrar
+    document.getElementById('btnSpawn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      addFlowerCluster(width * (0.2 + Math.random() * 0.6), height * 0.6);
+    });
+
+    // Minimizar / Maximizar panel pequeño
+    const miniPanel = document.getElementById('miniPanel');
+    const toggleCollapse = document.getElementById('toggleCollapse');
+
+    toggleCollapse.addEventListener('click', (e) => {
+      e.stopPropagation();
+      miniPanel.classList.add('collapsed');
+    });
+
+    miniPanel.addEventListener('click', () => {
+      if (miniPanel.classList.contains('collapsed')) {
+        miniPanel.classList.remove('collapsed');
+      }
+    });
+
+    // Modal Carta
+    const letterModal = document.getElementById('letterModal');
+    const btnLetter = document.getElementById('btnLetter');
+    const btnCloseLetter = document.getElementById('btnCloseLetter');
+
+    btnLetter.addEventListener('click', () => {
+      initAudio();
+      playSoftChime();
+      letterModal.classList.add('active');
+    });
+
+    btnCloseLetter.addEventListener('click', () => {
+      letterModal.classList.remove('active');
+    });
+
+    letterModal.addEventListener('click', (e) => {
+      if (e.target === letterModal) {
+        letterModal.classList.remove('active');
+      }
+    });
+
+    // Iniciar
+    initScene();
+    animate();
+  </script>
+</body>
+</html>
